@@ -1,15 +1,15 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Header, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 import uvicorn
-
-from pydantic import BaseModel, Field
 from typing import Optional, List, Union, Dict
 
 from dotenv import load_dotenv
 import os
 import io
+import fitz  # PyMuPDF
 from PIL import Image
+import json
 
 from ocr import GCPHelper
 from llm_response import extract_document_info_with_refusal_handling
@@ -19,8 +19,8 @@ from helper_functions import *
 load_dotenv()
 
 # Initialize database connection
-mongo_connection = os.getenv("MONGODB_CONNECTION_STRING", "mongodb://localhost:27017")
-mongo_db_name = os.getenv("MONGODB_DATABASE_NAME", "ocr_database")
+mongo_connection = os.getenv("MONGO_DB_URI")
+mongo_db_name = os.getenv("MONGO_DB_NAME")
 
 mongodb = MongoDB(mongo_connection, mongo_db_name)
 
@@ -43,6 +43,7 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "Hello, World!"}
+
 
 @app.post("/ocr-processing")
 async def ocr_processing(
@@ -124,16 +125,16 @@ async def ocr_processing(
             )
         
         # Store Qatar ID data in database
-        qatar_id_data = structured_data.get("qatar_id", {})
+        qatar_id_data = dict(structured_data.get("qatar_id", {}))
         qatar_id_data["request_id"] = request_id
-        qatar_id_id = await qatar_ids_crud.create(qatar_id_data)
-        print(f"Qatar ID stored with ID: {qatar_id_id}")
+        # qatar_id_id = await qatar_ids_crud.create(qatar_id_data)
+        # print(f"Qatar ID stored with ID: {qatar_id_id}")
         
         # Store Istimara data in database
-        istimara_data = structured_data.get("istimara", {})
+        istimara_data = dict(structured_data.get("istimara", {}))
         istimara_data["request_id"] = request_id
-        istimara_id = await istimaras_crud.create(istimara_data)
-        print(f"Istimara stored with ID: {istimara_id}")
+        # istimara_id = await istimaras_crud.create(istimara_data)
+        # print(f"Istimara stored with ID: {istimara_id}")
         
         # Store request info
         request_data = {
@@ -141,37 +142,36 @@ async def ocr_processing(
             "client_name": client_name,
             "phone_number": phone_number,
             "status": "completed",
-            "qatar_id_id": qatar_id_id,
-            "istimara_id": istimara_id,
+            # "qatar_id_id": qatar_id_id,
+            # "istimara_id": istimara_id,
             "files_processed": processed_files_info
         }
-        request_db_id = await requests_crud.create(request_data)
-        print(f"Request stored with ID: {request_db_id}")
+        # request_db_id = await requests_crud.create(request_data)
+        # print(f"Request stored with ID: {request_db_id}")
         
-        # Return response
-        return {
+        # Prepare response data
+        response_data = {
             "success": True,
             "request_id": request_id,
-            "request_db_id": request_db_id,
+            # "request_db_id": str(request_db_id),
             "client_name": client_name,
             "phone_number": phone_number,
             "files_processed": len(files),
             "files_info": processed_files_info,
             "extracted_data": {
-                "qatar_id": structured_data.get("qatar_id", {}),
-                "istimara": structured_data.get("istimara", {})
-            },
-            "database_ids": {
-                "qatar_id_id": qatar_id_id,
-                "istimara_id": istimara_id,
-                "request_id": request_db_id
+                "qatar_id": dict(structured_data.get("qatar_id", {})),
+                "istimara": dict(structured_data.get("istimara", {}))
             }
         }
+        
+        return JSONResponse(content=response_data)
         
     except HTTPException:
         raise
     except Exception as e:
         print(f"Exception OCR Processing: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"OCR processing failed: {str(e)}")
 
 
