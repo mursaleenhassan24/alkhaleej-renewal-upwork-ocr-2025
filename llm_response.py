@@ -163,56 +163,56 @@ def extract_document_info_with_refusal_handling(context: str, api_key: str = Non
     return result
 
 
-# Example usage
-if __name__ == "__main__":
-    # Example context with Qatar ID and Istimara information
-    sample_context = """
-    Qatar ID Information:
-    ID Number: 12345678901
-    Name: Ahmed Mohammed Al-Kuwari
-    Date of Birth: 15/03/1985
-    Nationality: Qatari
-    Occupation: Engineer
-    Passport Number: A1234567
-    Passport Expiry: 20/12/2028
-    Serial Number: QA-2024-001
-    Expiry Date: 10/05/2025
-    Employer: Qatar Petroleum
+# # Example usage
+# if __name__ == "__main__":
+#     # Example context with Qatar ID and Istimara information
+#     sample_context = """
+#     Qatar ID Information:
+#     ID Number: 12345678901
+#     Name: Ahmed Mohammed Al-Kuwari
+#     Date of Birth: 15/03/1985
+#     Nationality: Qatari
+#     Occupation: Engineer
+#     Passport Number: A1234567
+#     Passport Expiry: 20/12/2028
+#     Serial Number: QA-2024-001
+#     Expiry Date: 10/05/2025
+#     Employer: Qatar Petroleum
     
-    Istimara (Vehicle Registration) Information:
-    Vehicle Number: 12345
-    Owner (English): Ahmed Mohammed Al-Kuwari
-    Owner (Arabic): أحمد محمد الكواري
-    Owner QID: 12345678901
-    Nationality: Qatari
-    Vehicle Type: Private
-    Vehicle Make: Toyota
-    Vehicle Model: Land Cruiser
-    Vehicle Year: 2022
-    Vehicle Color: White
-    Body Type: SUV
-    Chassis Number: JTMCY7AJ5K4123456
-    Engine Number: 1GRFE123456
-    Number of Cylinders: 8
-    Number of Seats: 7
-    Vehicle Weight: 2500 kg
-    Net Weight: 1800 kg
-    Registration Date: 15/01/2022
-    Expiry Date: 15/01/2025
-    Renewal Date: 15/01/2024
-    Insurance Company: Qatar Insurance Company
-    Policy Number: QIC-2024-12345
-    Insurance Expiry: 15/01/2025
-    Policy Type: Comprehensive
-    """
+#     Istimara (Vehicle Registration) Information:
+#     Vehicle Number: 12345
+#     Owner (English): Ahmed Mohammed Al-Kuwari
+#     Owner (Arabic): أحمد محمد الكواري
+#     Owner QID: 12345678901
+#     Nationality: Qatari
+#     Vehicle Type: Private
+#     Vehicle Make: Toyota
+#     Vehicle Model: Land Cruiser
+#     Vehicle Year: 2022
+#     Vehicle Color: White
+#     Body Type: SUV
+#     Chassis Number: JTMCY7AJ5K4123456
+#     Engine Number: 1GRFE123456
+#     Number of Cylinders: 8
+#     Number of Seats: 7
+#     Vehicle Weight: 2500 kg
+#     Net Weight: 1800 kg
+#     Registration Date: 15/01/2022
+#     Expiry Date: 15/01/2025
+#     Renewal Date: 15/01/2024
+#     Insurance Company: Qatar Insurance Company
+#     Policy Number: QIC-2024-12345
+#     Insurance Expiry: 15/01/2025
+#     Policy Type: Comprehensive
+#     """
     
-    # Extract information
-    try:
-        result = extract_document_info_with_refusal_handling(sample_context)
+#     # Extract information
+#     try:
+#         result = extract_document_info_with_refusal_handling(sample_context)
         
-        # Pretty print the result
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+#         # Pretty print the result
+#         print(json.dumps(result, indent=2, ensure_ascii=False))
         
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        print("Make sure you have set your OPENAI_API_KEY environment variable")
+#     except Exception as e:
+#         print(f"Error: {str(e)}")
+#         print("Make sure you have set your OPENAI_API_KEY environment variable")
