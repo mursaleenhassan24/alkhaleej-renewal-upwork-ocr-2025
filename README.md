@@ -1,6 +1,3 @@
-docker run -it --rm --name n8n -p 5678:5678 -e GENERIC_TIMEZONE="Asia/Karachi" -e TZ="Asia/Karachi" -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true -e N8N_RUNNERS_ENABLED=true -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
-
-
 # main.py ya app startup mein
 from database import init_database, get_db
 
