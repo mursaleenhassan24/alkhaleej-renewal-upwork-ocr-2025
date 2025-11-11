@@ -13,8 +13,8 @@ services:
       - app-network
 
   ocr:
-    build: ./ocr-microservice
-    container_name: ocr-microservice
+    build: ./ocr
+    container_name: ocr
     restart: always
     environment:
       - MONGO_URI=mongodb://mongodb:27017/mydb
@@ -26,8 +26,8 @@ services:
       - app-network
 
   whatsapp:
-    build: ./whatsapp-microservice
-    container_name: whatsapp-microservice
+    build: ./whatsapp
+    container_name: whatsapp
     restart: always
     environment:
       - MONGO_URI=mongodb://mongodb:27017/mydb
@@ -39,8 +39,8 @@ services:
       - app-network
 
   database:
-    build: ./database-microservice
-    container_name: database-microservice
+    build: ./database
+    container_name: database
     restart: always
     environment:
       - MONGO_URI=mongodb://mongodb:27017/mydb
