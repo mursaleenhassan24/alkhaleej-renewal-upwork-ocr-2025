@@ -1,2 +1,7 @@
 venv
 .env
+alkhaleej-454901-15ecd8efcec5.json
+*.json
+!package.json
+!tsconfig.json
+!*.config.json
