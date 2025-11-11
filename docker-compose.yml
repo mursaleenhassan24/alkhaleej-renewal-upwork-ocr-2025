@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  ocr:
+    build: ./ocr-microservice
+    container_name: ocr-microservice
+    restart: always
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/mydb
+    volumes:
+      - shared_data:/app/shared
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  whatsapp:
+    build: ./whatsapp-microservice
+    container_name: whatsapp-microservice
+    restart: always
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/mydb
+    volumes:
+      - shared_data:/app/shared
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  database:
+    build: ./database-microservice
+    container_name: database-microservice
+    restart: always
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/mydb
+    volumes:
+      - shared_data:/app/shared
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+volumes:
+  mongo_data:
+  shared_data:
+
+networks:
+  app-network:
+    driver: bridge
