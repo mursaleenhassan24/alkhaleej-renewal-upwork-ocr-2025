@@ -12,9 +12,9 @@ services:
     networks:
       - app-network
 
-  ocr:
-    build: ./ocr
-    container_name: ocr
+  renewal-ocr:
+    image: 391984503295.dkr.ecr.us-east-1.amazonaws.com/renewal-ocr:latest
+    container_name: renewal-ocr
     restart: always
     volumes:
       - shared_data:/app/shared
@@ -23,9 +23,9 @@ services:
     networks:
       - app-network
 
-  whatsapp:
-    build: ./whatsapp
-    container_name: whatsapp
+  renewal-whatsapp:
+    image: 391984503295.dkr.ecr.us-east-1.amazonaws.com/renewal-whatsapp:latest
+    container_name: renewal-whatsapp
     restart: always
     volumes:
       - shared_data:/app/shared
