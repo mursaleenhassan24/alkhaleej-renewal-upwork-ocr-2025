@@ -34,17 +34,6 @@ services:
     networks:
       - app-network
 
-  database:
-    build: ./database
-    container_name: database
-    restart: always
-    volumes:
-      - shared_data:/app/shared
-    depends_on:
-      - mongodb
-    networks:
-      - app-network
-
 volumes:
   mongo_data:
   shared_data:
