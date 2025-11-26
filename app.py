@@ -165,6 +165,32 @@ async def ocr_processing(
             }
         }
         
+        # Send WhatsApp message with extracted information
+        try:
+            from whatsapp_func import format_extraction_message
+            
+            whatsapp_message = format_extraction_message(
+                request_id=request_id,
+                client_name=client_name,
+                qatar_id_data=dict(structured_data.get("qatar_id", {})),
+                istimara_data=dict(structured_data.get("istimara", {}))
+            )
+            
+            whatsapp_result = send_text_message(phone_number, whatsapp_message)
+            
+            if whatsapp_result.get("success"):
+                print(f"WhatsApp message sent successfully to {phone_number}")
+                response_data["whatsapp_sent"] = True
+            else:
+                print(f"Failed to send WhatsApp message: {whatsapp_result.get('error')}")
+                response_data["whatsapp_sent"] = False
+                response_data["whatsapp_error"] = whatsapp_result.get("error")
+                
+        except Exception as e:
+            print(f"Error sending WhatsApp message: {e}")
+            response_data["whatsapp_sent"] = False
+            response_data["whatsapp_error"] = str(e)
+        
         return JSONResponse(content=response_data)
         
     except HTTPException:
