@@ -128,33 +128,19 @@ async def ocr_processing(
         # Store Qatar ID data in database
         qatar_id_data = dict(structured_data.get("qatar_id", {}))
         qatar_id_data["request_id"] = request_id
-        # qatar_id_id = await qatar_ids_crud.create(qatar_id_data)
-        # print(f"Qatar ID stored with ID: {qatar_id_id}")
+        qatar_id_id = await qatar_ids_crud.create(qatar_id_data)
+        print(f"Qatar ID stored with ID: {qatar_id_id}")
         
         # Store Istimara data in database
         istimara_data = dict(structured_data.get("istimara", {}))
         istimara_data["request_id"] = request_id
-        # istimara_id = await istimaras_crud.create(istimara_data)
-        # print(f"Istimara stored with ID: {istimara_id}")
-        
-        # Store request info
-        request_data = {
-            "request_id": request_id,
-            "client_name": client_name,
-            "phone_number": phone_number,
-            "status": "completed",
-            # "qatar_id_id": qatar_id_id,
-            # "istimara_id": istimara_id,
-            "files_processed": processed_files_info
-        }
-        # request_db_id = await requests_crud.create(request_data)
-        # print(f"Request stored with ID: {request_db_id}")
+        istimara_id = await istimaras_crud.create(istimara_data)
+        print(f"Istimara stored with ID: {istimara_id}")
         
         # Prepare response data
         response_data = {
             "success": True,
             "request_id": request_id,
-            # "request_db_id": str(request_db_id),
             "client_name": client_name,
             "phone_number": phone_number,
             "files_processed": len(files),
