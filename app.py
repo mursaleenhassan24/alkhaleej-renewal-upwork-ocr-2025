@@ -22,6 +22,7 @@ load_dotenv()
 # Initialize database connection
 mongo_connection = os.getenv("MONGO_DB_URI")
 mongo_db_name = os.getenv("MONGO_DB_NAME")
+BACKEND_BASEURL = os.getenv("BACKEND_BASEURL")
 
 mongodb = MongoDB(mongo_connection, mongo_db_name)
 
@@ -51,7 +52,8 @@ async def ocr_processing(
     request_id: str = Form(...),
     client_name: str = Form(...),
     phone_number: str = Form(...),
-    files: List[UploadFile] = File(...)
+    files: List[UploadFile] = File(...),
+    authorization: Optional[str] = Header(None)
 ):
     """
     OCR Processing Endpoint:
@@ -153,7 +155,7 @@ async def ocr_processing(
         
         # Send WhatsApp message with extracted information
         try:
-            from whatsapp_func import format_extraction_message
+            from whatsapp_func import format_extraction_message, call_renewal_validation_api, send_insurance_type_selection
             
             whatsapp_message = format_extraction_message(
                 request_id=request_id,
@@ -167,6 +169,49 @@ async def ocr_processing(
             if whatsapp_result.get("success"):
                 print(f"WhatsApp message sent successfully to {phone_number}")
                 response_data["whatsapp_sent"] = True
+                
+                # Call renewal validation API
+                chassis_no = dict(structured_data.get("istimara", {})).get("vehicle_chassis_no")
+                
+                if chassis_no and authorization:
+                    # Extract bearer token from Authorization header
+                    bearer_token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+                    
+                    print(f"Calling renewal validation API with request_id: {request_id}, chassis_no: {chassis_no}")
+                    validation_result = call_renewal_validation_api(request_id, chassis_no, bearer_token)
+                    
+                    if validation_result.get("success"):
+                        validation_response = validation_result.get("response", {})
+                        
+                        if validation_response.get("status") == "success" and validation_response.get("responseCode") == "1":
+                            print(f"Renewal validation successful for request_id: {request_id}")
+                            response_data["renewal_validation"] = "success"
+                            
+                            # Send insurance type selection message
+                            insurance_selection_result = send_insurance_type_selection(phone_number)
+                            
+                            if insurance_selection_result.get("success"):
+                                print(f"Insurance type selection message sent to {phone_number}")
+                                response_data["insurance_selection_sent"] = True
+                            else:
+                                print(f"Failed to send insurance selection message: {insurance_selection_result.get('error')}")
+                                response_data["insurance_selection_sent"] = False
+                                response_data["insurance_selection_error"] = insurance_selection_result.get("error")
+                        else:
+                            print(f"Renewal validation failed: {validation_response}")
+                            response_data["renewal_validation"] = "failed"
+                            response_data["renewal_validation_response"] = validation_response
+                    else:
+                        print(f"Error calling renewal validation API: {validation_result.get('error')}")
+                        response_data["renewal_validation"] = "error"
+                        response_data["renewal_validation_error"] = validation_result.get("error")
+                else:
+                    if not chassis_no:
+                        print("Chassis number not found in extracted data")
+                        response_data["renewal_validation"] = "skipped_no_chassis"
+                    if not authorization:
+                        print("Authorization header not provided")
+                        response_data["renewal_validation"] = "skipped_no_auth"
             else:
                 print(f"Failed to send WhatsApp message: {whatsapp_result.get('error')}")
                 response_data["whatsapp_sent"] = False

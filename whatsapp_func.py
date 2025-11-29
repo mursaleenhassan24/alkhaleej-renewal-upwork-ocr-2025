@@ -8,6 +8,7 @@ load_dotenv()
 GRAPH_API_TOKEN = os.getenv("GRAPH_API_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 WHATSAPP_API_URL = f"https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages"
+BACKEND_BASEURL = os.getenv("BACKEND_BASEURL")
 
 
 def send_text_message(phone_number: str, message: str) -> Dict[str, Any]:
@@ -39,6 +40,97 @@ def send_text_message(phone_number: str, message: str) -> Dict[str, Any]:
         
     except Exception as e:
         print(f"Error sending text message: {e}")
+        return {"success": False, "error": str(e)}
+
+
+def call_renewal_validation_api(request_id: str, chassis_no: str, bearer_token: str) -> Dict[str, Any]:
+    """
+    Call the renewal validation API endpoint
+    """
+    try:
+        url = f"{BACKEND_BASEURL}/api/portal/transactions/renewalValidation"
+        
+        headers = {
+            "app-key": "kti-api-key-secret@2023",
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {bearer_token}"
+        }
+        
+        payload = {
+            "requestId": request_id,
+            "chassisNo": chassis_no,
+            "validationStage": 4
+        }
+        
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        
+        result = response.json()
+        print(f"Renewal validation API response: {result}")
+        
+        return {"success": True, "response": result}
+        
+    except Exception as e:
+        print(f"Error calling renewal validation API: {e}")
+        return {"success": False, "error": str(e)}
+
+
+def send_insurance_type_selection(phone_number: str) -> Dict[str, Any]:
+    """
+    Send insurance type selection message with interactive buttons to WhatsApp user
+    """
+    try:
+        headers = {
+            "Authorization": f"Bearer {GRAPH_API_TOKEN}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": phone_number,
+            "type": "interactive",
+            "interactive": {
+                "type": "button",
+                "body": {
+                    "text": "Please choose Insurance type:"
+                },
+                "action": {
+                    "buttons": [
+                        {
+                            "type": "reply",
+                            "reply": {
+                                "id": "comprehensive",
+                                "title": "Comprehensive"
+                            }
+                        },
+                        {
+                            "type": "reply",
+                            "reply": {
+                                "id": "third_party",
+                                "title": "Third Party"
+                            }
+                        },
+                        {
+                            "type": "reply",
+                            "reply": {
+                                "id": "third_party_plus",
+                                "title": "Third Party Plus"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        
+        response = requests.post(WHATSAPP_API_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        
+        print(f"Insurance type selection buttons sent to {phone_number}")
+        return {"success": True, "response": response.json()}
+        
+    except Exception as e:
+        print(f"Error sending insurance type selection: {e}")
         return {"success": False, "error": str(e)}
 
 
