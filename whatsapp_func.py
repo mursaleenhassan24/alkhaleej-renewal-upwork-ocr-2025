@@ -110,13 +110,6 @@ def send_insurance_type_selection(phone_number: str) -> Dict[str, Any]:
                                 "id": "third_party",
                                 "title": "Third Party"
                             }
-                        },
-                        {
-                            "type": "reply",
-                            "reply": {
-                                "id": "third_party_plus",
-                                "title": "Third Party Plus"
-                            }
                         }
                     ]
                 }
